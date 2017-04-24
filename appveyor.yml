@@ -1,0 +1,16 @@
+
+install:
+  - ps: Install-Product node ''
+  - npm install -g npm --silent --quiet
+  - npm install --silent --quiet
+
+platform:
+  - x86
+  - x64
+
+build: off
+
+test_script:
+  - node --version
+  - npm --version
+  - npm test

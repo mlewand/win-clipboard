@@ -1,0 +1,36 @@
+{
+  "name": "win-clipboard",
+  "version": "0.0.0",
+  "description": "Clipboard access for Windows.",
+  "homepage": "",
+  "author": {
+    "name": "Marek Lewandowski",
+    "email": "code@mlewandowski.com",
+    "url": ""
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "keywords": [
+    ""
+  ],
+  "devDependencies": {
+    "eslint": "^3.1.1",
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-exclude-gitignore": "^1.0.0",
+    "gulp-line-ending-corrector": "^1.0.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-mocha": "^3.0.1",
+    "gulp-plumber": "^1.0.0",
+    "gulp-nsp": "^2.1.0",
+    "eslint-config-mlewand-node": "^0.1.0"
+  },
+  "repository": "mlewand/win-clipboard",
+  "scripts": {
+    "prepublish": "gulp prepublish",
+    "test": "gulp"
+  },
+  "license": "MIT"
+}
