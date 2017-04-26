@@ -179,7 +179,7 @@ void getClipboardData( const FunctionCallbackInfo<Value> &args ) {
 	UINT formatId = 0;
 
 	for (auto& item: standardFormats) {
-		if ( item.second.compare( L"CF_TEXT" ) == 0 ) {
+		if ( item.second.compare( formatNameUtf16 ) == 0 ) {
 			formatId = item.first;
 		}
 	}
