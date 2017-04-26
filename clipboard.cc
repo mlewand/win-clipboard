@@ -1,4 +1,5 @@
-#include <node.h>
+
+#include <nan.h>
 #include <Windows.h>
 #include <map>
 
@@ -11,7 +12,41 @@ using v8::Local;
 using v8::Object;
 using v8::String;
 using v8::Value;
+using v8::Array;
 using v8::Boolean;
+using v8::Number;
+using v8::Exception;
+
+std::map<int,std::wstring> standardFormats;
+
+void initFormats() {
+	standardFormats[ 2 ] = std::wstring( L"CF_BITMAP" );
+	standardFormats[ 8 ] = std::wstring( L"CF_DIB" );
+	standardFormats[ 17 ] = std::wstring( L"CF_DIBV5" );
+	standardFormats[ 5 ] = std::wstring( L"CF_DIF" );
+	standardFormats[ 0x0082 ] = std::wstring( L"CF_DSPBITMAP" );
+	standardFormats[ 0x008E ] = std::wstring( L"CF_DSPENHMETAFILE" );
+	standardFormats[ 0x0083 ] = std::wstring( L"CF_DSPMETAFILEPICT" );
+	standardFormats[ 0x0081 ] = std::wstring( L"CF_DSPTEXT" );
+	standardFormats[ 14 ] = std::wstring( L"CF_ENHMETAFILE" );
+	standardFormats[ 0x0300 ] = std::wstring( L"CF_GDIOBJFIRST" );
+	standardFormats[ 0x03FF ] = std::wstring( L"CF_GDIOBJLAST" );
+	standardFormats[ 15 ] = std::wstring( L"CF_HDROP" );
+	standardFormats[ 16 ] = std::wstring( L"CF_LOCALE" );
+	standardFormats[ 3 ] = std::wstring( L"CF_METAFILEPICT" );
+	standardFormats[ 7 ] = std::wstring( L"CF_OEMTEXT" );
+	standardFormats[ 0x0080 ] = std::wstring( L"CF_OWNERDISPLAY" );
+	standardFormats[ 9 ] = std::wstring( L"CF_PALETTE" );
+	standardFormats[ 10 ] = std::wstring( L"CF_PENDATA" );
+	standardFormats[ 0x0200 ] = std::wstring( L"CF_PRIVATEFIRST" );
+	standardFormats[ 0x02FF ] = std::wstring( L"CF_PRIVATELAST" );
+	standardFormats[ 11 ] = std::wstring( L"CF_RIFF" );
+	standardFormats[ 4 ] = std::wstring( L"CF_SYLK" );
+	standardFormats[ 1 ] = std::wstring( L"CF_TEXT" );
+	standardFormats[ 6 ] = std::wstring( L"CF_TIFF" );
+	standardFormats[ 13 ] = std::wstring( L"CF_UNICODETEXT" );
+	standardFormats[ 12 ] = std::wstring( L"CF_WAVE" );
+}
 
 // A quick and dirty method to convert UTF16 to UTF8 - http://stackoverflow.com/questions/215963/how-do-you-properly-use-widechartomultibyte
 // Convert a wide Unicode string to an UTF8 string
@@ -22,6 +57,16 @@ std::string utf8_encode(const std::wstring &wstr)
     std::string strTo( size_needed, 0 );
     WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
     return strTo;
+}
+
+// Convert an UTF8 string to a wide Unicode String
+std::wstring utf8_decode(const std::string &str)
+{
+    if( str.empty() ) return std::wstring();
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo( size_needed, 0 );
+    MultiByteToWideChar                  (CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
 }
 
 void GetUser(const FunctionCallbackInfo<Value> &args)
@@ -59,7 +104,7 @@ void ClearClipboard( const FunctionCallbackInfo<Value> &args ) {
 
 void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 	Isolate *isolate = args.GetIsolate();
-	Local<v8::Array> arr = v8::Array::New( isolate );
+	Local<Array> arr = Array::New( isolate );
 
 	int formatsCount = CountClipboardFormats();
 	BOOL clipboardReady = false;
@@ -78,34 +123,6 @@ void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 		return;
 	}
 
-	std::map<int,PTCHAR> standardFormats;
-	standardFormats[ 2 ] = TEXT( "CF_BITMAP" );
-	standardFormats[ 8 ] = TEXT( "CF_DIB" );
-	standardFormats[ 17 ] = TEXT( "CF_DIBV5" );
-	standardFormats[ 5 ] = TEXT( "CF_DIF" );
-	standardFormats[ 0x0082 ] = TEXT( "CF_DSPBITMAP" );
-	standardFormats[ 0x008E ] = TEXT( "CF_DSPENHMETAFILE" );
-	standardFormats[ 0x0083 ] = TEXT( "CF_DSPMETAFILEPICT" );
-	standardFormats[ 0x0081 ] = TEXT( "CF_DSPTEXT" );
-	standardFormats[ 14 ] = TEXT( "CF_ENHMETAFILE" );
-	standardFormats[ 0x0300 ] = TEXT( "CF_GDIOBJFIRST" );
-	standardFormats[ 0x03FF ] = TEXT( "CF_GDIOBJLAST" );
-	standardFormats[ 15 ] = TEXT( "CF_HDROP" );
-	standardFormats[ 16 ] = TEXT( "CF_LOCALE" );
-	standardFormats[ 3 ] = TEXT( "CF_METAFILEPICT" );
-	standardFormats[ 7 ] = TEXT( "CF_OEMTEXT" );
-	standardFormats[ 0x0080 ] = TEXT( "CF_OWNERDISPLAY" );
-	standardFormats[ 9 ] = TEXT( "CF_PALETTE" );
-	standardFormats[ 10 ] = TEXT( "CF_PENDATA" );
-	standardFormats[ 0x0200 ] = TEXT( "CF_PRIVATEFIRST" );
-	standardFormats[ 0x02FF ] = TEXT( "CF_PRIVATELAST" );
-	standardFormats[ 11 ] = TEXT( "CF_RIFF" );
-	standardFormats[ 4 ] = TEXT( "CF_SYLK" );
-	standardFormats[ 1 ] = TEXT( "CF_TEXT" );
-	standardFormats[ 6 ] = TEXT( "CF_TIFF" );
-	standardFormats[ 13 ] = TEXT( "CF_UNICODETEXT" );
-	standardFormats[ 12 ] = TEXT( "CF_WAVE" );
-
 	for ( int i = 0; i < formatsCount; i++ ) {
 		// For first iteration 0 needs to be passed, for any subsequent call a previous
 		// id should be provided.
@@ -115,7 +132,7 @@ void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 
 		// Check for predefined formats.
 		if ( standardFormats.count( types[ i ] ) ) {
-			out = std::wstring( standardFormats[ types[ i ] ] );
+			out = standardFormats[ types[ i ] ];
 		} else {
 			// Else pick it up from WINAPI.
 			TCHAR curName[ BUFFER_LENGTH ];
@@ -138,11 +155,79 @@ void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 	CloseClipboard();
 }
 
+void getClipboardData( const FunctionCallbackInfo<Value> &args ) {
+	Isolate *isolate = args.GetIsolate();
+	Local<v8::Object> ret;
+
+	if ( args.Length() < 1 ) {
+	    isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Missing argument 1")));
+	    return;
+	}
+
+	if ( !args[0]->IsString() ) {
+	    isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Argument 1 must be a string")));
+	    return;
+	}
+
+	OpenClipboard( NULL );
+
+	v8::String::Utf8Value formatRawName( args[ 0 ] );
+	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
+
+	UINT formatId = 0;
+
+	for (auto& item: standardFormats) {
+		if ( item.second.compare( L"CF_TEXT" ) == 0 ) {
+			formatId = item.first;
+		}
+	}
+
+	// @todo if no formatId was found it can still be a custom format.
+
+	if ( formatId != 0 ) {
+		HGLOBAL clipboardDataHandle = GetClipboardData( formatId );
+
+		if ( clipboardDataHandle != NULL ) {
+			LPVOID data = GlobalLock( clipboardDataHandle );
+
+			if ( data != NULL ) {
+				SIZE_T clipboardBytes = GlobalSize( clipboardDataHandle );
+
+				// It copies data, so no worry about WINAPI cleaning it up on it's own.
+				ret = Nan::CopyBuffer( (const char*)data, clipboardBytes ).ToLocalChecked();
+
+				GlobalUnlock( clipboardDataHandle );
+			} else {
+				formatId = 0;
+			}
+		} else {
+			formatId = 0;
+		}
+	}
+
+	CloseClipboard();
+
+	Local<Number> tmpRet = Number::New( isolate, formatId );
+
+	if ( formatId != 0 ) {
+		// args.GetReturnValue().Set( tmpRet );
+		args.GetReturnValue().Set( ret );
+	} else {
+		// Format not found.
+		args.GetReturnValue().Set( Nan::Null() );
+	}
+}
+
 void init(Local<Object> exports)
 {
+	initFormats();
+
     NODE_SET_METHOD(exports, "getUser", GetUser);
 	NODE_SET_METHOD(exports, "clear", ClearClipboard);
 	NODE_SET_METHOD(exports, "getFormats", GetClipboardFormats);
+	NODE_SET_METHOD(exports, "getData", getClipboardData);
 }
 
 NODE_MODULE(addon, init)
