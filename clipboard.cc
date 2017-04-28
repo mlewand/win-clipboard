@@ -155,7 +155,7 @@ void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 	CloseClipboard();
 }
 
-void getClipboardData( const FunctionCallbackInfo<Value> &args ) {
+void GetData( const FunctionCallbackInfo<Value> &args ) {
 	Isolate *isolate = args.GetIsolate();
 	Local<v8::Object> ret;
 
@@ -184,7 +184,32 @@ void getClipboardData( const FunctionCallbackInfo<Value> &args ) {
 		}
 	}
 
-	// @todo if no formatId was found it can still be a custom format.
+	if ( formatId == 0 ) {
+		int formatsCount = CountClipboardFormats();
+		UINT lastClipboardFormat = 0;
+		const UINT BUFFER_LENGTH = 256;
+		std::vector<TCHAR> buffer( BUFFER_LENGTH, TEXT('\0') );
+
+		for ( int i = 0; i < formatsCount && formatId == 0; i++ ) {
+			// For first iteration 0 needs to be passed, for any subsequent call a previous
+			// id should be provided.
+			lastClipboardFormat = EnumClipboardFormats( lastClipboardFormat );
+
+			// Check only for custom types, as predefined were already tested.
+			if ( standardFormats.count( lastClipboardFormat ) == 0 ) {
+				GetClipboardFormatName( lastClipboardFormat, &buffer[ 0 ], BUFFER_LENGTH );
+
+				// Compare...
+				if ( formatNameUtf16.compare( &buffer[ 0 ] ) == 0 ) {
+					// Matched!
+					formatId = lastClipboardFormat;
+				}
+
+				// Zero used buffer.
+				memset( &buffer[ 0 ], TEXT('\0'), sizeof( TCHAR ) * BUFFER_LENGTH );
+			}
+		}
+	}
 
 	if ( formatId != 0 ) {
 		HGLOBAL clipboardDataHandle = GetClipboardData( formatId );
@@ -227,7 +252,7 @@ void init(Local<Object> exports)
     NODE_SET_METHOD(exports, "getUser", GetUser);
 	NODE_SET_METHOD(exports, "clear", ClearClipboard);
 	NODE_SET_METHOD(exports, "getFormats", GetClipboardFormats);
-	NODE_SET_METHOD(exports, "getData", getClipboardData);
+	NODE_SET_METHOD(exports, "getData", GetData);
 }
 
 NODE_MODULE(addon, init)
