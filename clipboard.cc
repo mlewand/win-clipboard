@@ -227,11 +227,7 @@ void GetData( const FunctionCallbackInfo<Value> &args ) {
 				ret = Nan::CopyBuffer( (const char*)data, clipboardBytes ).ToLocalChecked();
 
 				GlobalUnlock( clipboardDataHandle );
-			} else {
-				formatId = 0;
 			}
-		} else {
-			formatId = 0;
 		}
 	}
 
