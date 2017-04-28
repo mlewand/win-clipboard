@@ -26,6 +26,12 @@ Other requirement that I had in other side project, was retrieve all the formats
 
 All the implementation allowed just for setting a plaintext - it was due to the fact that it was based on `clip` bin.
 
+## How?
+
+I implemented it using a Node.js C++ addon, which uses WinAPI.
+
+The implementation turned out to be extremely easy, while having access to the WinAPI it gives all the power in the world to work with the clipboard.
+
 ## License
 
 MIT © [Marek Lewandowski]()
