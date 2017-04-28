@@ -199,6 +199,9 @@ void GetData( const FunctionCallbackInfo<Value> &args ) {
 			if ( standardFormats.count( lastClipboardFormat ) == 0 ) {
 				GetClipboardFormatName( lastClipboardFormat, &buffer[ 0 ], BUFFER_LENGTH );
 
+				// Make sure it's null terminated.
+				buffer[ BUFFER_LENGTH - 1 ] = TEXT('\0');
+
 				// Compare...
 				if ( formatNameUtf16.compare( &buffer[ 0 ] ) == 0 ) {
 					// Matched!
