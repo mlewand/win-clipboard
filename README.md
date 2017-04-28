@@ -1,5 +1,6 @@
 # win-clipboard [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> Clipboard access for Windows.
+
+An experimental Node.js module that provides you a full control over host clipboard in Windows environment.
 
 ## Installation
 
@@ -14,6 +15,17 @@ var winClipboard = require('win-clipboard');
 
 winClipboard('Rainbow');
 ```
+
+## Why?
+
+I needed to put some fancy stuff into a clipboard, and I was surprised that there's no good library for managing the clipboard.
+
+What I needed was an ability to set HTML / RTF / plain text together, which was nowhere to be found.
+
+Other requirement that I had in other side project, was retrieve all the formats in clipboard, for a further inspection.
+
+All the implementation allowed just for setting a plaintext - it was due to the fact that it was based on `clip` bin.
+
 ## License
 
 MIT © [Marek Lewandowski]()
