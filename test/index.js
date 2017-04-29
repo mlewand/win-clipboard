@@ -5,7 +5,6 @@ const chai = require( 'chai' );
 const expect = chai.expect;
 
 describe( 'win-clipboard', function() {
-
 	const FORMATS = {
 		TEXT: 'CF_TEXT',
 		CUSTOM: 'win-clipboard-test'
@@ -26,6 +25,13 @@ describe( 'win-clipboard', function() {
 			winClipboard.setData( FORMATS.TEXT, randomStringView.buffer );
 
 			expect( winClipboard.getData( FORMATS.TEXT ) ).to.be.deep.equal( Buffer.from( randomStringView ) );
+		} );
+
+		it( 'returns number of bytes written', function() {
+			let bytesView = new Int8Array( [ 1, 1, 1 ] ),
+				ret = winClipboard.setData( FORMATS.TEXT, bytesView.buffer );
+
+			expect( ret ).to.be.eql( 3 );
 		} );
 
 		it( 'works with custom format', function() {

@@ -345,14 +345,14 @@ void SetData( const FunctionCallbackInfo<Value> &args ) {
 
 	CloseClipboard();
 
-
-
 	if ( formatId != 0 ) {
-		Local<Number> tmpRet = Number::New( isolate, newDataBytes );
+		args.GetReturnValue().Set( Number::New( isolate, newDataBytes ) );
 	} else {
-		// Format not found.
 		args.GetReturnValue().Set( Nan::Null() );
 	}
+
+
+	// args.GetReturnValue().Set( formatId != 0 ? ret : Nan::Null() );
 }
 
 void init(Local<Object> exports)
