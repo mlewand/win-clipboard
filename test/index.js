@@ -68,6 +68,16 @@ describe( 'win-clipboard', function() {
 				} );
 		} );
 
+		it( 'Allows forcing ASCII', () => {
+			const utfString = 'Abc ¥£🙊',
+				expected = 'A\0b\0c\0 \0¥\0£\0=ØJÞ\0';
+
+			return clipboardy.write( utfString )
+				.then( () => {
+					expect( winClipboard.getText( FORMATS.UNICODE, true ) ).to.be.eql( expected );
+				} );
+		} );
+
 		it( 'Works with plain text', () => {
 			const simpleText = 'ab\ncd';
 
