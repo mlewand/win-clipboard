@@ -13,7 +13,7 @@
   ],
   "main": "lib/index.js",
   "keywords": [
-    ""
+    "addon"
   ],
   "devDependencies": {
     "eslint": "^3.1.1",
@@ -34,6 +34,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "bindings": "^1.2.1",
     "nan": "^2.6.2"
   }
 }

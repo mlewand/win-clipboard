@@ -2,14 +2,21 @@
 	"targets": [
 		{
 			"target_name": "addon",
-			"sources": [
-				"clipboard.cc"
-			],
+			"sources": [],
 			"defines": [
 				"UNICODE"
 			],
-			"include_dirs" : [
+			"include_dirs": [
 				"<!(node -e \"require('nan')\")"
+			],
+			"conditions": [
+				[ "OS=='win'",
+					{
+						"sources": [
+							"lib/clipboard.cc"
+						],
+					}
+				]
 			]
 		}
 	]
