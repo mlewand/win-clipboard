@@ -59,6 +59,10 @@ clipboard.setText( '🙀🙊' ); // Sets some fancy emoji in your unicode format
   * Returns:
     * `number` - Number of bytes written if successful.
     * `null` - If failed.
+* `getFormats`
+  * Returns:
+    * `string[]` - An array of strings with available formats.
+* `clear` - Simply wipes out your clipboard.
 
 ## Why?
 
