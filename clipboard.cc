@@ -287,10 +287,11 @@ UINT __GetFormatId( const std::wstring &formatName ) {
 	return formatId;
 }
 
+// Sets the clipboard data with a given format.
+// Note that it does not clear the clipboard before, so that you can stack multiple different formats.
+// You should clan it by yourself if you wish to.
 void SetData( const FunctionCallbackInfo<Value> &args ) {
 	Isolate *isolate = args.GetIsolate();
-	Local<v8::Object> ret;
-
 	const int minArgsCount = 2;
 
 	if ( args.Length() < minArgsCount ) {
@@ -313,24 +314,25 @@ void SetData( const FunctionCallbackInfo<Value> &args ) {
 	}
 
 	v8::Handle<v8::ArrayBuffer> newData = v8::Handle<v8::ArrayBuffer>::Cast( args[ 1 ] );
-
-	size_t retCode = 1;
-
-	OpenClipboard( NULL );
+	size_t newDataBytes = newData->GetContents().ByteLength();
 
 	v8::String::Utf8Value formatRawName( args[ 0 ] );
 	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
 
+	OpenClipboard( NULL );
+
 	UINT formatId = __GetFormatId( formatNameUtf16 );
 
+	// Format id is not a known format.
+	if ( formatId == 0 ) {
+		formatId = RegisterClipboardFormat( formatNameUtf16.c_str() );
+	}
+
 	if ( formatId != 0 ) {
-		size_t newDataBytes = newData->GetContents().ByteLength();
+		// If valid fromat was given, do the magic and store the data.
 		HGLOBAL allocHandle = GlobalAlloc( GMEM_MOVEABLE, newDataBytes );
 
-		retCode = 2;
-
 		if ( allocHandle != NULL ) {
-			retCode = 3;
 			LPVOID buffer = (LPVOID)GlobalLock( allocHandle );
 
 			memcpy( buffer, newData->GetContents().Data(), newDataBytes );
@@ -343,12 +345,10 @@ void SetData( const FunctionCallbackInfo<Value> &args ) {
 
 	CloseClipboard();
 
-	// Local<Number> tmpRet = Number::New( isolate, newData->GetContents().ByteLength() );
-	Local<Number> tmpRet = Number::New( isolate, retCode );
+
 
 	if ( formatId != 0 ) {
-		args.GetReturnValue().Set( tmpRet );
-		// args.GetReturnValue().Set( ret );
+		Local<Number> tmpRet = Number::New( isolate, newDataBytes );
 	} else {
 		// Format not found.
 		args.GetReturnValue().Set( Nan::Null() );
