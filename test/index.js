@@ -3,12 +3,26 @@
 const winClipboard = require( '../lib' );
 const chai = require( 'chai' );
 const expect = chai.expect;
+const clipboardy = require( 'clipboardy' );
 
 describe( 'win-clipboard', function() {
 	const FORMATS = {
 		TEXT: 'CF_TEXT',
 		CUSTOM: 'win-clipboard-test'
 	};
+
+	describe( 'getData', () => {
+		it( 'Works', () => {
+			return clipboardy.write( 'foo1' )
+				.then( () => {
+					expect( winClipboard.getData( FORMATS.TEXT ) ).to.be.deep.equal( Buffer.from( 'foo1\0' ) );
+				} );
+		} );
+
+		it( 'Returns a proper val for nonexisting entires', () => {
+			expect( winClipboard.getData( 'some-funny-formaaat-name11' ) ).to.be.equal( null );
+		} );
+	} );
 
 	describe( 'setData', () => {
 		const initialTextData = winClipboard.getData( FORMATS.TEXT );
@@ -18,7 +32,7 @@ describe( 'win-clipboard', function() {
 			winClipboard.setData( FORMATS.TEXT, ( new Int8Array( initialTextData ) ).buffer );
 		} );
 
-		it( 'works with builtin format', function() {
+		it( 'Works with builtin format', function() {
 			let randomString = 'Random text ' + Math.random() + '\0',
 				randomStringView = new Int8Array( Array.from( randomString ) );
 
@@ -27,14 +41,14 @@ describe( 'win-clipboard', function() {
 			expect( winClipboard.getData( FORMATS.TEXT ) ).to.be.deep.equal( Buffer.from( randomStringView ) );
 		} );
 
-		it( 'returns number of bytes written', function() {
+		it( 'Returns number of bytes written', function() {
 			let bytesView = new Int8Array( [ 1, 1, 1 ] ),
 				ret = winClipboard.setData( FORMATS.TEXT, bytesView.buffer );
 
 			expect( ret ).to.be.eql( 3 );
 		} );
 
-		it( 'works with custom format', function() {
+		it( 'Works with custom format', function() {
 			let randomString = 'Random text ' + Math.random() + '\0',
 				randomStringView = new Int8Array( Array.from( randomString ) );
 

@@ -155,97 +155,8 @@ void GetClipboardFormats( const FunctionCallbackInfo<Value> &args ) {
 	CloseClipboard();
 }
 
-void GetData( const FunctionCallbackInfo<Value> &args ) {
-	Isolate *isolate = args.GetIsolate();
-	Local<v8::Object> ret;
-
-	if ( args.Length() < 1 ) {
-	    isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Missing argument 1")));
-	    return;
-	}
-
-	if ( !args[0]->IsString() ) {
-	    isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Argument 1 must be a string")));
-	    return;
-	}
-
-	OpenClipboard( NULL );
-
-	v8::String::Utf8Value formatRawName( args[ 0 ] );
-	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
-
-	UINT formatId = 0;
-
-	for (auto& item: standardFormats) {
-		if ( item.second.compare( formatNameUtf16 ) == 0 ) {
-			formatId = item.first;
-		}
-	}
-
-	if ( formatId == 0 ) {
-		int formatsCount = CountClipboardFormats();
-		UINT lastClipboardFormat = 0;
-		const UINT BUFFER_LENGTH = 256;
-		std::vector<TCHAR> buffer( BUFFER_LENGTH, TEXT('\0') );
-
-		for ( int i = 0; i < formatsCount && formatId == 0; i++ ) {
-			// For first iteration 0 needs to be passed, for any subsequent call a previous
-			// id should be provided.
-			lastClipboardFormat = EnumClipboardFormats( lastClipboardFormat );
-
-			// Check only for custom types, as predefined were already tested.
-			if ( standardFormats.count( lastClipboardFormat ) == 0 ) {
-				GetClipboardFormatName( lastClipboardFormat, &buffer[ 0 ], BUFFER_LENGTH );
-
-				// Make sure it's null terminated.
-				buffer[ BUFFER_LENGTH - 1 ] = TEXT('\0');
-
-				// Compare...
-				if ( formatNameUtf16.compare( &buffer[ 0 ] ) == 0 ) {
-					// Matched!
-					formatId = lastClipboardFormat;
-				}
-
-				// Zero used buffer.
-				memset( &buffer[ 0 ], TEXT('\0'), sizeof( TCHAR ) * BUFFER_LENGTH );
-			}
-		}
-	}
-
-	if ( formatId != 0 ) {
-		HGLOBAL clipboardDataHandle = GetClipboardData( formatId );
-
-		if ( clipboardDataHandle != NULL ) {
-			LPVOID data = GlobalLock( clipboardDataHandle );
-
-			if ( data != NULL ) {
-				SIZE_T clipboardBytes = GlobalSize( clipboardDataHandle );
-
-				// It copies data, so no worry about WINAPI cleaning it up on it's own.
-				ret = Nan::CopyBuffer( (const char*)data, clipboardBytes ).ToLocalChecked();
-
-				GlobalUnlock( clipboardDataHandle );
-			}
-		}
-	}
-
-	CloseClipboard();
-
-	Local<Number> tmpRet = Number::New( isolate, formatId );
-
-	if ( formatId != 0 ) {
-		// args.GetReturnValue().Set( tmpRet );
-		args.GetReturnValue().Set( ret );
-	} else {
-		// Format not found.
-		args.GetReturnValue().Set( Nan::Null() );
-	}
-}
-
 // Looks for WinAPI format id, based on a given formatName.
-UINT __GetFormatId( const std::wstring &formatName ) {
+UINT GetFormatId( const std::wstring &formatName ) {
 	UINT formatId = 0;
 
 	for (auto& item: standardFormats) {
@@ -287,6 +198,56 @@ UINT __GetFormatId( const std::wstring &formatName ) {
 	return formatId;
 }
 
+void GetData( const FunctionCallbackInfo<Value> &args ) {
+	Isolate *isolate = args.GetIsolate();
+	Local<v8::Object> ret;
+
+	if ( args.Length() < 1 ) {
+	    isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Missing argument 1")));
+	    return;
+	}
+
+	if ( !args[0]->IsString() ) {
+	    isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Argument 1 must be a string")));
+	    return;
+	}
+
+	OpenClipboard( NULL );
+
+	v8::String::Utf8Value formatRawName( args[ 0 ] );
+	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
+
+	UINT formatId = GetFormatId( formatNameUtf16 );
+
+	if ( formatId != 0 ) {
+		HGLOBAL clipboardDataHandle = GetClipboardData( formatId );
+
+		if ( clipboardDataHandle != NULL ) {
+			LPVOID data = GlobalLock( clipboardDataHandle );
+
+			if ( data != NULL ) {
+				SIZE_T clipboardBytes = GlobalSize( clipboardDataHandle );
+
+				// It copies data, so no worry about WINAPI cleaning it up on it's own.
+				ret = Nan::CopyBuffer( (const char*)data, clipboardBytes ).ToLocalChecked();
+
+				GlobalUnlock( clipboardDataHandle );
+			}
+		}
+	}
+
+	CloseClipboard();
+
+	if ( formatId != 0 ) {
+		args.GetReturnValue().Set( ret );
+	} else {
+		// Format not found.
+		args.GetReturnValue().Set( Nan::Null() );
+	}
+}
+
 // Sets the clipboard data with a given format.
 // Note that it does not clear the clipboard before, so that you can stack multiple different formats.
 // You should clan it by yourself if you wish to.
@@ -321,7 +282,7 @@ void SetData( const FunctionCallbackInfo<Value> &args ) {
 
 	OpenClipboard( NULL );
 
-	UINT formatId = __GetFormatId( formatNameUtf16 );
+	UINT formatId = GetFormatId( formatNameUtf16 );
 
 	// Format id is not a known format.
 	if ( formatId == 0 ) {
