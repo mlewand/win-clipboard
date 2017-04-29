@@ -24,6 +24,22 @@ var winClipboard = require('win-clipboard');
 winClipboard('Rainbow');
 ```
 
+## API
+
+* `setData( format, newData )` - Sets raw data to a given clipboard format.
+  * Params:
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
+    * `newData` - [`ArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) - Raw data to be set.
+  * Returns:
+    * `number` - Number of bytes written if successful.
+    * `null` - If failed.
+* `getData( format )`
+  * Params:
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
+  * Returns:
+    * [`Buffer`](https://nodejs.org/api/buffer.html) - A raw buffer of what is kept in the memory.
+    * `null` - If nothing is found.
+
 ## Why?
 
 I needed to put some fancy stuff into a clipboard, and I was surprised that there's no good library for managing the clipboard.
