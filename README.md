@@ -32,10 +32,17 @@ clipboard.setText( 'CF_UNICODETEXT', '🙀🙊' ); // Sets some fancy emoji in y
 
 ## API
 
-* `setData( format, newData )` - Sets raw data to a given clipboard format.
+* `getText( [format, forceAscii] )`
   * Params:
-    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
-    * `newData` - [`ArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) - Raw data to be set.
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc. Defaults to `CF_UNICODETEXT`.
+    * `forceAscii` - `boolean` - Whether ASCII encoding should be used? By default module will attempt to decode UTF-16 to UTF-8. Defaults to `false`.
+  * Returns:
+    * `string` - String retrieved from the clipboard.
+    * `null` - If no data was found.
+* `setText( newText[, format] )`
+  * Params:
+    * `newText` - `string` - Text to be set in the clipboard.
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc. Defaults to `CF_UNICODETEXT`.
   * Returns:
     * `number` - Number of bytes written if successful.
     * `null` - If failed.
@@ -45,13 +52,13 @@ clipboard.setText( 'CF_UNICODETEXT', '🙀🙊' ); // Sets some fancy emoji in y
   * Returns:
     * [`Buffer`](https://nodejs.org/api/buffer.html) - A raw buffer of what is kept in the memory.
     * `null` - If nothing is found.
-* `getData( [format, forceAscii] )`
+* `setData( newData, format )` - Sets raw data to a given clipboard format.
   * Params:
-    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc. Defaults to `CF_UNICODETEXT`.
-    * `forceAscii` - `boolean` - Whether ASCII encoding should be used? By default module will attempt to decode UTF-16 to UTF-8. Defaults to `false`.
+    * `newData` - [`ArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer) - Raw data to be set.
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
   * Returns:
-    * `string` - String retrieved from the clipboard.
-    * `null` - If no data was found.
+    * `number` - Number of bytes written if successful.
+    * `null` - If failed.
 
 ## Why?
 
