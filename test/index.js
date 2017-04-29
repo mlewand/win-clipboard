@@ -8,6 +8,7 @@ const clipboardy = require( 'clipboardy' );
 describe( 'win-clipboard', function() {
 	const FORMATS = {
 		TEXT: 'CF_TEXT',
+		UNICODE: 'CF_UNICODETEXT',
 		CUSTOM: 'win-clipboard-test'
 	};
 
@@ -55,6 +56,25 @@ describe( 'win-clipboard', function() {
 			winClipboard.setData( FORMATS.CUSTOM, randomStringView.buffer );
 
 			expect( winClipboard.getData( FORMATS.CUSTOM ) ).to.be.deep.equal( Buffer.from( randomStringView ) );
+		} );
+	} );
+
+	describe( 'getText', () => {
+		it( 'Works well with UTF-8', () => {
+			const utfString = 'Foo ¥£€ûл身śĆ🙀🙊';
+			return clipboardy.write( utfString )
+				.then( () => {
+					expect( winClipboard.getText( FORMATS.UNICODE ) ).to.be.eql( utfString );
+				} );
+		} );
+
+		it( 'Works with plain text', () => {
+			const simpleText = 'ab\ncd';
+
+			return clipboardy.write( simpleText )
+				.then( () => {
+					expect( winClipboard.getText( FORMATS.TEXT ) ).to.be.eql( simpleText );
+				} );
 		} );
 	} );
 } );
