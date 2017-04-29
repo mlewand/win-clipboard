@@ -100,4 +100,28 @@ describe( 'win-clipboard', function() {
 				} );
 		} );
 	} );
+
+	describe( 'setText', () => {
+		it( 'Sets correctly UTF8', () => {
+			const utfString = 'Foo ¥£€ûл身śĆ🙀🙊';
+
+			let res = winClipboard.setText( null, utfString );
+
+			return clipboardy.read()
+				.then( ( data ) => {
+					expect( data ).to.be.eql( utfString );
+					expect( res ).to.be.eql( 34 );
+				} );
+		} );
+
+		it( 'Supports ASCII', () => {
+			const asciiString = 'Asd';
+
+			let res = winClipboard.setText( FORMATS.TEXT, asciiString, true ),
+				data = winClipboard.getText( 'CF_TEXT' );
+
+			expect( data ).to.be.eql( asciiString );
+			expect( res ).to.be.eql( 4 );
+		} );
+	} );
 } );
