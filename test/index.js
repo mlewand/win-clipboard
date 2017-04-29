@@ -86,5 +86,18 @@ describe( 'win-clipboard', function() {
 					expect( winClipboard.getText( FORMATS.TEXT ) ).to.be.eql( simpleText );
 				} );
 		} );
+
+		it( 'Returns a correct value when there are no matches', () => {
+			expect( winClipboard.getText( 'funny-non-exisitng-type' ) ).to.be.eql( null );
+		} );
+
+		it( 'Returns unocde by default', () => {
+			const utfString = '🙀🙊';
+
+			return clipboardy.write( utfString )
+				.then( () => {
+					expect( winClipboard.getText() ).to.be.eql( utfString );
+				} );
+		} );
 	} );
 } );
