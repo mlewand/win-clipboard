@@ -244,6 +244,117 @@ void GetData( const FunctionCallbackInfo<Value> &args ) {
 	}
 }
 
+// Looks for WinAPI format id, based on a given formatName.
+UINT __GetFormatId( const std::wstring &formatName ) {
+	UINT formatId = 0;
+
+	for (auto& item: standardFormats) {
+		if ( item.second.compare( formatName ) == 0 ) {
+			formatId = item.first;
+		}
+	}
+
+	if ( formatId == 0 ) {
+		int formatsCount = CountClipboardFormats();
+		UINT lastClipboardFormat = 0;
+		const UINT BUFFER_LENGTH = 256;
+		std::vector<TCHAR> buffer( BUFFER_LENGTH, TEXT('\0') );
+
+		for ( int i = 0; i < formatsCount && formatId == 0; i++ ) {
+			// For first iteration 0 needs to be passed, for any subsequent call a previous
+			// id should be provided.
+			lastClipboardFormat = EnumClipboardFormats( lastClipboardFormat );
+
+			// Check only for custom types, as predefined were already tested.
+			if ( standardFormats.count( lastClipboardFormat ) == 0 ) {
+				GetClipboardFormatName( lastClipboardFormat, &buffer[ 0 ], BUFFER_LENGTH );
+
+				// Make sure it's null terminated.
+				buffer[ BUFFER_LENGTH - 1 ] = TEXT('\0');
+
+				// Compare...
+				if ( formatName.compare( &buffer[ 0 ] ) == 0 ) {
+					// Matched!
+					formatId = lastClipboardFormat;
+				}
+
+				// Zero used buffer.
+				memset( &buffer[ 0 ], TEXT('\0'), sizeof( TCHAR ) * BUFFER_LENGTH );
+			}
+		}
+	}
+
+	return formatId;
+}
+
+// Sets the clipboard data with a given format.
+// Note that it does not clear the clipboard before, so that you can stack multiple different formats.
+// You should clan it by yourself if you wish to.
+void SetData( const FunctionCallbackInfo<Value> &args ) {
+	Isolate *isolate = args.GetIsolate();
+	const int minArgsCount = 2;
+
+	if ( args.Length() < minArgsCount ) {
+		char buffer[ 256 ];
+		memset( buffer, 0, sizeof( char ) * 256 );
+		sprintf( buffer, "Invalid arguments count. Expected %d but %d given.", minArgsCount, args.Length() );
+	    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, buffer )));
+	    return;
+	}
+
+	if ( !args[0]->IsString() ) {
+	    isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Argument 1 must be a string")));
+	    return;
+	}
+
+	if ( !args[1]->IsArrayBuffer() ) {
+	    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Argument 2 must be an ArrayBuffer")));
+	    return;
+	}
+
+	v8::Handle<v8::ArrayBuffer> newData = v8::Handle<v8::ArrayBuffer>::Cast( args[ 1 ] );
+	size_t newDataBytes = newData->GetContents().ByteLength();
+
+	v8::String::Utf8Value formatRawName( args[ 0 ] );
+	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
+
+	OpenClipboard( NULL );
+
+	UINT formatId = __GetFormatId( formatNameUtf16 );
+
+	// Format id is not a known format.
+	if ( formatId == 0 ) {
+		formatId = RegisterClipboardFormat( formatNameUtf16.c_str() );
+	}
+
+	if ( formatId != 0 ) {
+		// If valid fromat was given, do the magic and store the data.
+		HGLOBAL allocHandle = GlobalAlloc( GMEM_MOVEABLE, newDataBytes );
+
+		if ( allocHandle != NULL ) {
+			LPVOID buffer = (LPVOID)GlobalLock( allocHandle );
+
+			memcpy( buffer, newData->GetContents().Data(), newDataBytes );
+
+			SetClipboardData( formatId, allocHandle );
+
+			GlobalUnlock( allocHandle );
+		}
+	}
+
+	CloseClipboard();
+
+	if ( formatId != 0 ) {
+		args.GetReturnValue().Set( Number::New( isolate, newDataBytes ) );
+	} else {
+		args.GetReturnValue().Set( Nan::Null() );
+	}
+
+
+	// args.GetReturnValue().Set( formatId != 0 ? ret : Nan::Null() );
+}
+
 void init(Local<Object> exports)
 {
 	initFormats();
@@ -252,6 +363,7 @@ void init(Local<Object> exports)
 	NODE_SET_METHOD(exports, "clear", ClearClipboard);
 	NODE_SET_METHOD(exports, "getFormats", GetClipboardFormats);
 	NODE_SET_METHOD(exports, "getData", GetData);
+	NODE_SET_METHOD(exports, "setData", SetData);
 }
 
 NODE_MODULE(addon, init)

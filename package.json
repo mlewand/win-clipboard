@@ -13,9 +13,10 @@
   ],
   "main": "lib/index.js",
   "keywords": [
-    ""
+    "addon"
   ],
   "devDependencies": {
+    "chai": "^3.5.0",
     "eslint": "^3.1.1",
     "eslint-config-mlewand-node": "^0.1.0",
     "gulp": "^3.9.0",
@@ -34,6 +35,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "bindings": "^1.2.1",
     "nan": "^2.6.2"
   }
 }
