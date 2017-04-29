@@ -4,8 +4,16 @@ An experimental Node.js module that provides you a full control over host clipbo
 
 ## Installation
 
+If you haven't ever messed up with C++ addons, you'll have most likely to install `windows-build-tools`. It takes a fair amount of time to complete, but simplifies the installation by **a lot**.
+
 ```sh
-$ npm install --save win-clipboard
+npm install --global --production windows-build-tools
+```
+
+Once you have the above, it's as simple as:
+
+```sh
+npm install --save win-clipboard
 ```
 
 ## Usage
