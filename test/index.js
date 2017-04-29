@@ -30,21 +30,21 @@ describe( 'win-clipboard', function() {
 
 		after( () => {
 			// Restore original data in the clipboard once suite is done.
-			winClipboard.setData( FORMATS.TEXT, ( new Int8Array( initialTextData ) ).buffer );
+			winClipboard.setData( ( new Int8Array( initialTextData ) ).buffer, FORMATS.TEXT );
 		} );
 
 		it( 'Works with builtin format', function() {
 			let randomString = 'Random text ' + Math.random() + '\0',
 				randomStringView = new Int8Array( Array.from( randomString ) );
 
-			winClipboard.setData( FORMATS.TEXT, randomStringView.buffer );
+			winClipboard.setData( randomStringView.buffer, FORMATS.TEXT );
 
 			expect( winClipboard.getData( FORMATS.TEXT ) ).to.be.deep.equal( Buffer.from( randomStringView ) );
 		} );
 
 		it( 'Returns number of bytes written', function() {
 			let bytesView = new Int8Array( [ 1, 1, 1 ] ),
-				ret = winClipboard.setData( FORMATS.TEXT, bytesView.buffer );
+				ret = winClipboard.setData( bytesView.buffer, FORMATS.TEXT );
 
 			expect( ret ).to.be.eql( 3 );
 		} );
@@ -53,7 +53,7 @@ describe( 'win-clipboard', function() {
 			let randomString = 'Random text ' + Math.random() + '\0',
 				randomStringView = new Int8Array( Array.from( randomString ) );
 
-			winClipboard.setData( FORMATS.CUSTOM, randomStringView.buffer );
+			winClipboard.setData( randomStringView.buffer, FORMATS.CUSTOM );
 
 			expect( winClipboard.getData( FORMATS.CUSTOM ) ).to.be.deep.equal( Buffer.from( randomStringView ) );
 		} );
@@ -105,7 +105,7 @@ describe( 'win-clipboard', function() {
 		it( 'Sets correctly UTF8', () => {
 			const utfString = 'Foo ¥£€ûл身śĆ🙀🙊';
 
-			let res = winClipboard.setText( null, utfString );
+			let res = winClipboard.setText( utfString );
 
 			return clipboardy.read()
 				.then( ( data ) => {
@@ -117,7 +117,7 @@ describe( 'win-clipboard', function() {
 		it( 'Supports ASCII', () => {
 			const asciiString = 'Asd';
 
-			let res = winClipboard.setText( FORMATS.TEXT, asciiString, true ),
+			let res = winClipboard.setText( asciiString, FORMATS.TEXT ),
 				data = winClipboard.getText( 'CF_TEXT' );
 
 			expect( data ).to.be.eql( asciiString );
