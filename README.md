@@ -27,7 +27,7 @@ clipboard.getText(); // Returns a string content of a unicode format.
 
 clipboard.getData( 'HTML Format' ); // Returns raw content of a "HTML Format".
 
-clipboard.setText( 'CF_UNICODETEXT', '🙀🙊' ); // Sets some fancy emoji in your unicode format.
+clipboard.setText( '🙀🙊' ); // Sets some fancy emoji in your unicode format.
 ```
 
 ## API

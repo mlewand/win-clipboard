@@ -263,21 +263,21 @@ void SetData( const FunctionCallbackInfo<Value> &args ) {
 	    return;
 	}
 
-	if ( !args[0]->IsString() ) {
+	if ( !args[1]->IsString() ) {
 	    isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Argument 1 must be a string")));
+			String::NewFromUtf8(isolate, "Argument 2 must be a string")));
 	    return;
 	}
 
-	if ( !args[1]->IsArrayBuffer() ) {
-	    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Argument 2 must be an ArrayBuffer")));
+	if ( !args[0]->IsArrayBuffer() ) {
+	    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Argument 1 must be an ArrayBuffer")));
 	    return;
 	}
 
-	v8::Handle<v8::ArrayBuffer> newData = v8::Handle<v8::ArrayBuffer>::Cast( args[ 1 ] );
+	v8::Handle<v8::ArrayBuffer> newData = v8::Handle<v8::ArrayBuffer>::Cast( args[ 0 ] );
 	size_t newDataBytes = newData->GetContents().ByteLength();
 
-	v8::String::Utf8Value formatRawName( args[ 0 ] );
+	v8::String::Utf8Value formatRawName( args[ 1 ] );
 	std::wstring formatNameUtf16 = utf8_decode( *formatRawName );
 
 	OpenClipboard( NULL );
