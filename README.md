@@ -21,15 +21,15 @@ npm install --save win-clipboard
 ```js
 const clipboard = require( 'win-clipboard' );
 
-clipboard.getFormats(); // Lists formats in the clipboard.
-
-clipboard.getText(); // Returns a string content of a unicode format.
+clipboard.getText(); // Returns unicode format as a string.
 
 clipboard.getHTML(); // Returns HTML as a string.
 
 clipboard.getData( 'HTML Format' ); // Returns raw content of a "HTML Format".
 
 clipboard.setText( '🙀🙊' ); // Sets some fancy emoji in your unicode format.
+
+clipboard.getFormats(); // Lists formats in the clipboard.
 ```
 
 ## API
