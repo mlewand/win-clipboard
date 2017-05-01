@@ -116,13 +116,22 @@ describe( 'win-clipboard', function() {
 	} );
 
 	describe( 'getHtml / setHtml', () => {
-		it( 'works', () => {
-			const html = '<html><body>foo<em>bar</em></body></html>',
-				expected = 'foo<em>bar</em>';
+		const html = '<html><body>foo<em>bar</em></body></html>';
+
+		it( 'Works', () => {
+			const expected = 'foo<em>bar</em>';
 
 			winClipboard.setHtml( html );
 
 			expect( winClipboard.getHtml() ).to.be.equal( expected );
+		} );
+
+		it( 'Returns full HTML', () => {
+			const expected = '<html><body><!--StartFragment-->foo<em>bar</em><!--EndFragment--></body></html>';
+
+			winClipboard.setHtml( html );
+
+			expect( winClipboard.getHtml( true ) ).to.be.equal( expected );
 		} );
 	} );
 } );
