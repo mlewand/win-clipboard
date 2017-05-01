@@ -34,17 +34,21 @@ clipboard.getFormats(); // Lists formats in the clipboard.
 
 ## API
 
-* `getText( [format, forceAscii] )`
+* `getText( [format, encoding] )`
   * Params:
     * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc. Defaults to `CF_UNICODETEXT`.
-    * `forceAscii` - `boolean` - Whether ASCII encoding should be used? By default module will attempt to decode UTF-16 to UTF-8. Defaults to `false`.
+    * `encoding` - `string` - Encoding used for decoding string in the clipboard. Defaults to `utf-16le`.
   * Returns:
     * `string` - String retrieved from the clipboard.
     * `null` - If no data was found.
-* `setText( newText[, format] )`
+* `setText( newText[, format, encoding] )`
   * Params:
     * `newText` - `string` - Text to be set in the clipboard.
     * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc. Defaults to `CF_UNICODETEXT`.
+    * `encoding` - `string` - Encoding used for encoding string into the clipboard. Default value depends on format:
+      * `CF_TEXT` - Defaults to `ascii`.
+      * `CF_UNICODETEXT` - Defaults to `utf-16le`.
+      * In any other case defaults to `utf8`.
   * Returns:
     * `number` - Number of bytes written if successful.
     * `null` - If failed.
