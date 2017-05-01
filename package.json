@@ -37,6 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "bindings": "^1.2.1",
+    "detect-newline": "^2.1.0",
     "iconv-lite": "^0.4.16",
     "nan": "^2.6.2"
   }

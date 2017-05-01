@@ -25,6 +25,8 @@ clipboard.getFormats(); // Lists formats in the clipboard.
 
 clipboard.getText(); // Returns a string content of a unicode format.
 
+clipboard.getHTML(); // Returns HTML as a string.
+
 clipboard.getData( 'HTML Format' ); // Returns raw content of a "HTML Format".
 
 clipboard.setText( '🙀🙊' ); // Sets some fancy emoji in your unicode format.
@@ -46,6 +48,15 @@ clipboard.setText( '🙀🙊' ); // Sets some fancy emoji in your unicode format
   * Returns:
     * `number` - Number of bytes written if successful.
     * `null` - If failed.
+* `getHTML( [fullHtml, format] )`
+  * Params:
+    * `fullHtml` - `boolean` - If set to `true` will return outer context, like `html`, `body` tags. Defaults to `false`.
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
+* `setHTML( newHtml, [sourceUrl, format] )`
+  * Params:
+    * `newHtml` - `string` - HTML code to be set.
+    * `sourceUrl` - `string` - URL to be set as a SourceURL header. Defaults to `null`.
+    * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
 * `getData( format )`
   * Params:
     * `format` - `string` - Format name you want to set. Could be one of the [standard builtins](https://msdn.microsoft.com/pl-pl/library/windows/desktop/ff729168(v=vs.85).aspx). Examples are `CF_UNICODETEXT`, `CF_TEXT`, `HTML Format` etc.
