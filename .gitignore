@@ -1,3 +1,11 @@
 node_modules
 coverage
 build
+*.vcx*
+*.aps
+*.rc
+*.sdf
+*.sln
+.vs
+.vscode
+resource.h
