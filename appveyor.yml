@@ -1,7 +1,6 @@
 
 install:
   - ps: Install-Product node ''
-  - npm install -g npm --silent --quiet
   - npm install --silent --quiet
 
 platform:
