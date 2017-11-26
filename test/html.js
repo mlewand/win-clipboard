@@ -44,11 +44,54 @@ describe( 'html helper', function() {
 		} );
 
 		it( 'Generates markers also for hopeless HTML', () => {
-			const expectedFixture = 'Version:0.9\nStartHTML:00000122\nEndHTML:00000177\nStartFragment:00000142\n' +
-				'EndFragment:00000159\nSourceURL:https://www.w3.org/\n<!--StartFragment-->foo<b>bar\nbaz</b><!--EndFragment-->';
+			const expectedFixture = 'Version:0.9\nStartHTML:00000122\nEndHTML:00000203\nStartFragment:00000154\n' +
+				'EndFragment:00000171\nSourceURL:https://www.w3.org/\n' +
+				'<html><body><!--StartFragment-->foo<b>bar\nbaz</b><!--EndFragment--></body></html>';
 			const inputFixture = 'foo<b>bar\nbaz</b>';
 
 			let ret = html.encode( inputFixture, 'https://www.w3.org/' );
+
+			expect( ret ).to.be.eql( expectedFixture );
+		} );
+
+		it( 'Generates html and body tags if not provided', () => {
+			const expectedFixture = '<html><body>' +
+				'<!--StartFragment-->ab<b>cd</b><!--EndFragment-->' +
+				'</body></html>';
+			const inputFixture = 'ab<b>cd</b>';
+
+			let ret = html.encode( inputFixture, 'https://www.w3.org/' );
+
+			// Remove all the header part, as this assertion should not assesses this.
+			ret = ret.replace( /^[\s\S]+SourceURL:.+\n/m, '' );
+
+			expect( ret ).to.be.eql( expectedFixture );
+		} );
+
+		it( 'Does not interferer with existing body', () => {
+			const expectedFixture = '<html><body><!--StartFragment-->' +
+				'\naa\n' +
+				'<!--EndFragment--></body></html>';
+			const inputFixture = '<body>\naa\n</body>';
+
+			let ret = html.encode( inputFixture, 'https://www.w3.org/' );
+
+			// Remove all the header part, as this assertion should not assesses this.
+			ret = ret.replace( /^[\s\S]+SourceURL:.+\n/m, '' );
+
+			expect( ret ).to.be.eql( expectedFixture );
+		} );
+
+		it( 'Recognizes html and body elements with attributes', () => {
+			const expectedFixture = '<html data-foo><body class="a, b"><!--StartFragment-->' +
+				'\naa\n' +
+				'<!--EndFragment--></body></html>';
+			const inputFixture = '<html data-foo><body class="a, b">\naa\n</body></html>';
+
+			let ret = html.encode( inputFixture, 'https://www.w3.org/' );
+
+			// Remove all the header part, as this assertion should not assesses this.
+			ret = ret.replace( /^[\s\S]+SourceURL:.+\n/m, '' );
 
 			expect( ret ).to.be.eql( expectedFixture );
 		} );
