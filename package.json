@@ -1,6 +1,6 @@
 {
   "name": "win-clipboard",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Clipboard access for Windows.",
   "homepage": "https://github.com/mlewand/win-clipboard",
   "author": {
