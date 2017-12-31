@@ -2,7 +2,7 @@
   "name": "win-clipboard",
   "version": "0.0.5",
   "description": "Clipboard access for Windows.",
-  "homepage": "",
+  "homepage": "https://github.com/mlewand/win-clipboard",
   "author": {
     "name": "Marek Lewandowski",
     "email": "code@mlewandowski.com",
