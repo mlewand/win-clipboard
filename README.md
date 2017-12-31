@@ -13,8 +13,10 @@ npm install --global --production windows-build-tools
 Once you have the above, it's as simple as:
 
 ```sh
-npm install --save win-clipboard
+npm install --save-optional win-clipboard
 ```
+
+Note that you should install this package an optional dependency, as it won't work on other OSes.
 
 ## Usage
 
